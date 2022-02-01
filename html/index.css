@@ -1,0 +1,167 @@
+@font-face {
+  font-family: "Oxygen";
+  src: url("Oxygen-Regular.ttf") format("truetype"); /* Safari, Android, iOS */
+}
+
+body {
+  font-family: Oxygen;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr;
+  place-items: center;
+}
+
+.board {
+  display: grid;
+  grid-template-rows: repeat(6, 100px);
+  row-gap: 10px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(5, 100px);
+  column-gap: 10px;
+  align-items: center;
+  justify-items: center;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  display: grid;
+  place-items: center;
+  font-size: 50px;
+
+  background-color: grey;
+}
+
+.board .cell-0 {
+  background-color: green;
+}
+
+.board .cell-1 {
+  background-color: orange;
+}
+
+.board .cell-2 {
+  background-color: grey;
+}
+
+.keyboard {
+  margin: 50px 0;
+  display: grid;
+  grid-template-columns: repeat(12, 50px);
+  grid-template-rows: repeat(3, 50px);
+  column-gap: 5px;
+  row-gap: 5px;
+  grid-template-areas:
+    "q w e r t y u i o p backspace backspace"
+    ". a s d f g h j k l enter ."
+    ". . z x c v b n m . enter .";
+}
+
+.key-q {
+  grid-area: q;
+}
+
+.key-w {
+  grid-area: w;
+}
+
+.key-w {
+  grid-area: w;
+}
+.key-e {
+  grid-area: e;
+}
+.key-r {
+  grid-area: r;
+}
+.key-t {
+  grid-area: t;
+}
+.key-y {
+  grid-area: y;
+}
+.key-u {
+  grid-area: u;
+}
+.key-i {
+  grid-area: i;
+}
+.key-o {
+  grid-area: o;
+}
+.key-p {
+  grid-area: p;
+}
+
+.key-a {
+  grid-area: a;
+}
+.key-s {
+  grid-area: s;
+}
+.key-d {
+  grid-area: d;
+}
+.key-f {
+  grid-area: f;
+}
+.key-g {
+  grid-area: g;
+}
+.key-h {
+  grid-area: h;
+}
+.key-j {
+  grid-area: j;
+}
+.key-k {
+  grid-area: k;
+}
+.key-l {
+  grid-area: l;
+}
+
+.key-z {
+  grid-area: z;
+}
+.key-x {
+  grid-area: x;
+}
+.key-c {
+  grid-area: c;
+}
+.key-v {
+  grid-area: v;
+}
+.key-b {
+  grid-area: b;
+}
+.key-n {
+  grid-area: n;
+}
+.key-m {
+  grid-area: m;
+}
+.key-backspace {
+  grid-area: backspace;
+}
+.key-enter {
+  grid-area: enter;
+}
+
+.guess-2 {
+  background-color: darkgrey;
+}
+
+.guess-1 {
+  background-color: orange;
+}
+
+.guess-0 {
+  background-color: green;
+}
