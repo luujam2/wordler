@@ -42112,7 +42112,7 @@ const Settings = () => {
     const [guesses, setGuesses] = (0, react_1.useState)(6);
     return (react_1.default.createElement(StyledForm, { onSubmit: (e) => {
             e.preventDefault();
-            window.location.href = `${window.location.origin}?guesses=${guesses}&wordLength=${wordLength}`;
+            window.location.href = `${window.location.href.split("?")[0]}?guesses=${guesses}&wordLength=${wordLength}`;
         } },
         react_1.default.createElement("label", { htmlFor: "word-length" }, "Number of letters"),
         react_1.default.createElement("select", { name: "word-length", onChange: (e) => setWordLength(Number(e.target.value)), value: wordLength },
