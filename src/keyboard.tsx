@@ -59,7 +59,6 @@ const Key = ({
 };
 
 export const Keyboard = ({ clickHandler, letterMapping }: KeyboardProps) => {
-  console.log(letterMapping);
   return (
     <StyledKeyboard>
       <Key
