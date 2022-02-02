@@ -1,7 +1,8 @@
+import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { Keyboard } from "./keyboard";
 import { Row } from "./row";
-import { words } from "./words";
+import { words } from "./words"; //TODO dynamic import word list based on number of letters chosen
 
 const WORD_LENGTH = 5;
 const NUMBER_OF_GUESSES = 6;
@@ -64,6 +65,18 @@ const compare = (word: string) => {
   return result;
 };
 
+const StyledBoard = styled.div`
+  display: grid;
+  grid-template-rows: repeat(6, 100px);
+  row-gap: 10px;
+`;
+
+const StyledMain = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  place-items: center;
+`;
+
 export const Board = () => {
   const [word, setWord] = useState("");
   const [isError, setIsError] = useState(false);
@@ -121,13 +134,13 @@ export const Board = () => {
   }
 
   return (
-    <div className="main">
+    <StyledMain>
       <h1>Wordler</h1>
-      <div className="board">{boardStructure}</div>
+      <StyledBoard>{boardStructure}</StyledBoard>
       <Keyboard
         letterMapping={letterMapping}
         clickHandler={(letter) => {
-          if (letter === "bs") {
+          if (letter === "backspace") {
             return setWord(word.slice(0, -1));
           }
 
@@ -154,6 +167,6 @@ export const Board = () => {
           setWord(word + letter);
         }}
       />
-    </div>
+    </StyledMain>
   );
 };

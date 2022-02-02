@@ -1,6 +1,7 @@
 import React from "react";
-import { BoardResult } from "./board";
+import { Board, BoardResult } from "./board";
 import { motion, Variants } from "framer-motion";
+import styled from "@emotion/styled";
 
 type RowProps = {
   word?: string;
@@ -19,6 +20,14 @@ const variants: Variants = {
   exact: { backgroundColor: "green", rotate: 360 },
 };
 
+const StyledRow = styled(motion.div)`
+  display: grid;
+  grid-template-columns: repeat(5, 100px);
+  column-gap: 10px;
+  align-items: center;
+  justify-items: center;
+`;
+
 export const Row = ({ word, result, isError }: RowProps) => {
   const cells = [];
   if (!word) {
@@ -32,19 +41,40 @@ export const Row = ({ word, result, isError }: RowProps) => {
   }
 
   return (
-    <motion.div
-      className="row"
+    <StyledRow
       animate={isError ? { x: [-10, 10, -10, 10, -10, 10, 0] } : { x: 0 }}
       transition={{ duration: 0.5 }}
     >
       {cells}
-    </motion.div>
+    </StyledRow>
   );
 };
 
+const StyledCell = styled(motion.div)<{ match: BoardResult | undefined }>`
+  width: 100px;
+  height: 100px;
+  display: grid;
+  place-items: center;
+  font-size: 50px;
+  border: 2px solid lightgrey;
+
+  background-color: ${(props) => {
+    switch (props.match) {
+      case BoardResult.MATCH:
+        return "green";
+      case BoardResult.PARTIAL_MATCH:
+        return "orange";
+      case BoardResult.NO_MATCH:
+        return "grey";
+      default:
+        return "white";
+    }
+  }};
+`;
+
 const Cell = ({ letter, result }: CellProps) => {
   if (!letter) {
-    return <div className="cell"></div>;
+    return <StyledCell match={undefined}></StyledCell>;
   }
 
   let variantToUse;
@@ -61,13 +91,13 @@ const Cell = ({ letter, result }: CellProps) => {
   }
 
   return (
-    <motion.div
+    <StyledCell
       variants={variants}
       initial="no"
       animate={variantToUse}
-      className="cell"
+      match={result}
     >
       {letter.toUpperCase()}
-    </motion.div>
+    </StyledCell>
   );
 };
