@@ -1,16 +1,20 @@
 {
   "name": "wordler",
   "version": "1.0.0",
+  "homepage": "http://luujam2.github.io/wordler",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack serve"
+    "start": "webpack serve",
+    "build": "webpack build",
+    "deploy": "webpack build && gh-pages -d dist"
   },
   "devDependencies": {
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
     "copy-webpack-plugin": "^10.2.0",
+    "gh-pages": "^3.2.3",
     "prettier": "^2.5.1",
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.4",
