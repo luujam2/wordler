@@ -21,7 +21,9 @@ export const Settings = () => {
     <StyledForm
       onSubmit={(e) => {
         e.preventDefault();
-        window.location.href = `${window.location.origin}?guesses=${guesses}&wordLength=${wordLength}`;
+        window.location.href = `${
+          window.location.href.split("?")[0]
+        }?guesses=${guesses}&wordLength=${wordLength}`;
       }}
     >
       <label htmlFor="word-length">Number of letters</label>
