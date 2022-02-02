@@ -7,6 +7,7 @@ type RowProps = {
   word?: string;
   result?: BoardResult[];
   isError?: boolean;
+  wordLength: number;
 };
 
 type CellProps = {
@@ -20,28 +21,29 @@ const variants: Variants = {
   exact: { backgroundColor: "green", rotate: 360 },
 };
 
-const StyledRow = styled(motion.div)`
+const StyledRow = styled(motion.div)<{ wordLength: number }>`
   display: grid;
-  grid-template-columns: repeat(5, 100px);
+  grid-template-columns: ${(props) => `repeat(${props.wordLength}, 100px)`};
   column-gap: 10px;
   align-items: center;
   justify-items: center;
 `;
 
-export const Row = ({ word, result, isError }: RowProps) => {
+export const Row = ({ word, result, isError, wordLength }: RowProps) => {
   const cells = [];
   if (!word) {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < wordLength; i++) {
       cells.push(<Cell />);
     }
   } else {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < wordLength; i++) {
       cells.push(<Cell letter={word[i]} result={result?.[i]} />);
     }
   }
 
   return (
     <StyledRow
+      wordLength={wordLength}
       animate={isError ? { x: [-10, 10, -10, 10, -10, 10, 0] } : { x: 0 }}
       transition={{ duration: 0.5 }}
     >

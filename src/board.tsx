@@ -2,14 +2,9 @@ import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { Keyboard } from "./keyboard";
 import { Row } from "./row";
-import { words } from "./words"; //TODO dynamic import word list based on number of letters chosen
 
-const WORD_LENGTH = 5;
-const NUMBER_OF_GUESSES = 6;
 let currentGuessNumber = 0;
 
-const wordToGuess = words[Math.floor(Math.random() * words.length)];
-console.log(wordToGuess);
 export enum BoardResult {
   MATCH,
   PARTIAL_MATCH,
@@ -24,7 +19,7 @@ const guesses: string[] = [];
 const guessResults: BoardResult[][] = [];
 const letterMapping: LetterMapping = {};
 
-const compare = (word: string) => {
+const compare = (word: string, wordToGuess: string, wordLength: number) => {
   const result = [];
   const matchingIndices = [];
   const partialMatchingIndices = [];
@@ -49,7 +44,7 @@ const compare = (word: string) => {
     }
   }
 
-  for (let i = 0; i < WORD_LENGTH; i++) {
+  for (let i = 0; i < word.length; i++) {
     if (matchingIndices.includes(i)) {
       result.push(BoardResult.MATCH);
       letterMapping[word[i]] = BoardResult.MATCH;
@@ -77,24 +72,66 @@ const StyledMain = styled.div`
   place-items: center;
 `;
 
-export const Board = () => {
+type BoardInitProps = {
+  noOfGuesses: number;
+  wordLength: number;
+};
+
+type BoardProps = {
+  noOfGuesses: number;
+  words: string[];
+};
+
+export const BoardInit = ({ noOfGuesses, wordLength }: BoardInitProps) => {
+  const [words, setWords] = useState<string[] | null | undefined>(undefined);
+
+  useEffect(() => {
+    const loadWords = async () => {
+      try {
+        const loadedWords = await import(`../words/${wordLength}-letter-words`);
+
+        setWords(loadedWords.default);
+      } catch (e) {
+        setWords(null);
+      }
+    };
+
+    loadWords();
+  });
+
+  if (!words) {
+    return <div>loading</div>;
+  }
+
+  return <Board noOfGuesses={noOfGuesses} words={words} />;
+};
+
+export const Board = ({ noOfGuesses, words }: BoardProps) => {
   const [word, setWord] = useState("");
+  const [wordToGuess, setWordToGuess] = useState("");
   const [isError, setIsError] = useState(false);
+  const wordLength = wordToGuess.length;
+
+  useEffect(() => {
+    const wordToGuess = words[Math.floor(Math.random() * words.length)];
+    console.log(wordToGuess);
+
+    setWordToGuess(wordToGuess);
+  }, []);
 
   useEffect(() => {
     const handleKeyup = (e: KeyboardEvent) => {
       setIsError(false);
 
-      if (Number(e.keyCode) === 13 && word.length === WORD_LENGTH) {
+      if (Number(e.keyCode) === 13 && word.length === wordLength) {
         // check word exists in dictionary
         //compare to word to guess
         if (!words.includes(word)) {
-          console.log("INVALID GUESS");
           setIsError(true);
           return;
         }
 
-        const result = compare(word);
+        const result = compare(word, wordToGuess, wordLength);
         guesses.push(word);
         guessResults.push(result);
         setWord("");
@@ -105,7 +142,7 @@ export const Board = () => {
         setWord(word.slice(0, -1));
       }
 
-      if (word.length === WORD_LENGTH) {
+      if (word.length === wordLength) {
         return;
       }
 
@@ -123,13 +160,21 @@ export const Board = () => {
 
   const boardStructure = [];
 
-  for (let i = 0; i < NUMBER_OF_GUESSES; i++) {
+  for (let i = 0; i < noOfGuesses; i++) {
     if (guesses[i]) {
-      boardStructure.push(<Row word={guesses[i]} result={guessResults[i]} />);
+      boardStructure.push(
+        <Row
+          word={guesses[i]}
+          result={guessResults[i]}
+          wordLength={wordLength}
+        />
+      );
     } else if (i === currentGuessNumber) {
-      boardStructure.push(<Row word={word} isError={isError} />);
+      boardStructure.push(
+        <Row word={word} isError={isError} wordLength={wordLength} />
+      );
     } else {
-      boardStructure.push(<Row />);
+      boardStructure.push(<Row wordLength={wordLength} />);
     }
   }
 
@@ -144,14 +189,13 @@ export const Board = () => {
             return setWord(word.slice(0, -1));
           }
 
-          if (letter === "enter" && word.length === WORD_LENGTH) {
+          if (letter === "enter" && word.length === wordLength) {
             setIsError(false);
             if (!words.includes(word)) {
-              console.log("INVALID GUESS");
               setIsError(true);
               return;
             }
-            const result = compare(word);
+            const result = compare(word, wordToGuess, wordLength);
             guesses.push(word);
             guessResults.push(result);
 
