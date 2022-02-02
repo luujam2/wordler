@@ -62,14 +62,24 @@ const compare = (word: string, wordToGuess: string, wordLength: number) => {
 
 const StyledBoard = styled.div`
   display: grid;
-  grid-template-rows: repeat(6, 100px);
+  grid-template-rows: repeat(6, 1fr);
   row-gap: 10px;
+  height: 320px;
+
+  @media (min-width: 700px) {
+    height: 500px;
+  }
 `;
 
 const StyledMain = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  place-items: center;
+  width: 320px;
+  margin: 0 auto;
+  text-align: center;
+
+  @media (min-width: 700px) {
+    font-size: 50px;
+    width: 500px;
+  }
 `;
 
 type BoardInitProps = {
@@ -179,13 +189,15 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
   }
 
   return (
-    <StyledMain>
-      <h1>Wordler</h1>
-      <StyledBoard>{boardStructure}</StyledBoard>
+    <>
+      <StyledMain>
+        <h1>Wordler</h1>
+        <StyledBoard>{boardStructure}</StyledBoard>
+      </StyledMain>
       <Keyboard
         letterMapping={letterMapping}
         clickHandler={(letter) => {
-          if (letter === "backspace") {
+          if (letter === "bs") {
             return setWord(word.slice(0, -1));
           }
 
@@ -211,6 +223,6 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
           setWord(word + letter);
         }}
       />
-    </StyledMain>
+    </>
   );
 };

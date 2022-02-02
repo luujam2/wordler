@@ -23,7 +23,8 @@ const variants: Variants = {
 
 const StyledRow = styled(motion.div)<{ wordLength: number }>`
   display: grid;
-  grid-template-columns: ${(props) => `repeat(${props.wordLength}, 100px)`};
+  grid-template-columns: ${(props) => `repeat(${props.wordLength}, 1fr)`};
+  grid-template-rows: 1fr;
   column-gap: 10px;
   align-items: center;
   justify-items: center;
@@ -53,11 +54,11 @@ export const Row = ({ word, result, isError, wordLength }: RowProps) => {
 };
 
 const StyledCell = styled(motion.div)<{ match: BoardResult | undefined }>`
-  width: 100px;
-  height: 100px;
+  height: 100%;
+  width: 100%;
   display: grid;
   place-items: center;
-  font-size: 50px;
+  font-size: 2rem;
   border: 2px solid lightgrey;
 
   background-color: ${(props) => {

@@ -26,19 +26,33 @@ const Button = styled.button<ButtonProps>`
         return "";
     }
   }};
+  overflow: hidden;
+  min-width: 0;
 `;
 
 const StyledKeyboard = styled.div`
-  margin: 50px 0;
   display: grid;
-  grid-template-columns: repeat(12, 50px);
-  grid-template-rows: repeat(3, 50px);
+  position: absolute;
+  bottom: 0;
+  height: 100px;
+  margin: 50px auto;
+  left: 0;
+  right: 0;
+  width: 90%;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   column-gap: 5px;
   row-gap: 5px;
   grid-template-areas:
-    "q w e r t y u i o p backspace backspace"
+    "q w e r t y u i o p bs bs"
     ". a s d f g h j k l enter ."
     ". . z x c v b n m . enter .";
+  min-height: 0; /* NEW */
+  min-width: 0; /* NEW; needed for Firefox */
+
+  @media (min-width: 700px) {
+    width: 40%;
+    height: 200px;
   }
 `;
 
@@ -194,7 +208,7 @@ export const Keyboard = ({ clickHandler, letterMapping }: KeyboardProps) => {
         clickHandler={clickHandler}
       />
       <Key
-        letter="backspace"
+        letter="bs"
         letterMapping={letterMapping}
         clickHandler={clickHandler}
       />
