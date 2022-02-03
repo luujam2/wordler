@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useInView } from "react-intersection-observer";
 import { Keyboard } from "./keyboard";
 import { Row } from "./row";
 
@@ -121,6 +122,27 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
   const [wordToGuess, setWordToGuess] = useState("");
   const [isError, setIsError] = useState(false);
   const wordLength = wordToGuess.length;
+  const { ref, inView } = useInView({
+    /* Optional options */
+    threshold: 0,
+  });
+  const activeRow = useRef<HTMLDivElement>(null);
+
+  const setRefs = useCallback(
+    (node) => {
+      // Ref's from useRef needs to have the node assigned to `current`
+      (activeRow as any).current = node;
+      // Callback refs, like the one from `useInView`, is a function that takes the node as an argument
+      ref(node);
+    },
+    [ref]
+  );
+
+  const scrollToView = () => {
+    if (!inView) {
+      activeRow.current?.scrollIntoView();
+    }
+  };
 
   useEffect(() => {
     const wordToGuess = words[Math.floor(Math.random() * words.length)];
@@ -131,6 +153,8 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
 
   const handleLetter = (letter: string) => {
     if (letter === "Enter" && word.length === wordLength) {
+      //scroll to view
+      scrollToView();
       // check word exists in dictionary
       //compare to word to guess
       if (!words.includes(word)) {
@@ -150,6 +174,8 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
 
     if (letter === "Backspace") {
       setWord(word.slice(0, -1));
+      //scroll to view
+      scrollToView();
     }
 
     if (word.length === wordLength) {
@@ -158,6 +184,8 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
 
     if (letter.length === 1) {
       setWord(word + letter.toLowerCase());
+      //scroll to view
+      scrollToView();
     }
   };
 
@@ -186,7 +214,12 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
       );
     } else if (i === currentGuessNumber) {
       boardStructure.push(
-        <Row word={word} isError={isError} wordLength={wordLength} />
+        <Row
+          ref={setRefs}
+          word={word}
+          isError={isError}
+          wordLength={wordLength}
+        />
       );
     } else {
       boardStructure.push(<Row wordLength={wordLength} />);

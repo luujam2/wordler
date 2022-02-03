@@ -8,6 +8,7 @@ type RowProps = {
   result?: BoardResult[];
   isError?: boolean;
   wordLength: number;
+  ref?: React.RefObject<HTMLDivElement> | undefined;
 };
 
 type CellProps = {
@@ -24,34 +25,41 @@ const variants: Variants = {
 const StyledRow = styled(motion.div)<{ wordLength: number }>`
   display: grid;
   grid-template-columns: ${(props) => `repeat(${props.wordLength}, 1fr)`};
-  grid-template-rows: 1fr;
+  grid-template-rows: 80px;
   column-gap: 10px;
   align-items: center;
   justify-items: center;
+
+  @media (max-width: 500px) {
+    grid-template-rows: 50px;
+  }
 `;
 
-export const Row = ({ word, result, isError, wordLength }: RowProps) => {
-  const cells = [];
-  if (!word) {
-    for (let i = 0; i < wordLength; i++) {
-      cells.push(<Cell />);
+export const Row = React.forwardRef(
+  ({ word, result, isError, wordLength }: RowProps, ref) => {
+    const cells = [];
+    if (!word) {
+      for (let i = 0; i < wordLength; i++) {
+        cells.push(<Cell />);
+      }
+    } else {
+      for (let i = 0; i < wordLength; i++) {
+        cells.push(<Cell letter={word[i]} result={result?.[i]} />);
+      }
     }
-  } else {
-    for (let i = 0; i < wordLength; i++) {
-      cells.push(<Cell letter={word[i]} result={result?.[i]} />);
-    }
-  }
 
-  return (
-    <StyledRow
-      wordLength={wordLength}
-      animate={isError ? { x: [-10, 10, -10, 10, -10, 10, 0] } : { x: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      {cells}
-    </StyledRow>
-  );
-};
+    return (
+      <StyledRow
+        wordLength={wordLength}
+        animate={isError ? { x: [-10, 10, -10, 10, -10, 10, 0] } : { x: 0 }}
+        transition={{ duration: 0.5 }}
+        ref={ref as any}
+      >
+        {cells}
+      </StyledRow>
+    );
+  }
+);
 
 const StyledCell = styled(motion.div)<{ match: BoardResult | undefined }>`
   height: 100%;

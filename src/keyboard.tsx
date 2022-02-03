@@ -32,13 +32,13 @@ const Button = styled.button<ButtonProps>`
 
 const StyledKeyboard = styled.div`
   display: grid;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   height: 100px;
-  margin: 50px auto;
+  margin: 0 auto;
   left: 0;
   right: 0;
-  width: 90%;
+  padding: 50px 0;
   grid-template-columns: repeat(12, 1fr);
   grid-template-rows: repeat(3, 1fr);
   column-gap: 5px;
@@ -49,10 +49,19 @@ const StyledKeyboard = styled.div`
     ". . z x c v b n m . Enter .";
   min-height: 0; /* NEW */
   min-width: 0; /* NEW; needed for Firefox */
+  background-color: white;
+  border-top: 1px solid black;
 
   @media (min-width: 700px) {
     width: 40%;
     height: 200px;
+  }
+
+  @media (max-width: 500px) {
+    padding: 20px 0;
+    width: 95%;
+    column-gap: 2px;
+    row-gap: 2px;
   }
 `;
 
