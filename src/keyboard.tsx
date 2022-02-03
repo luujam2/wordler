@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React from "react";
 import { BoardResult, LetterMapping } from "./board";
 import styled from "@emotion/styled";
 
@@ -44,9 +44,9 @@ const StyledKeyboard = styled.div`
   column-gap: 5px;
   row-gap: 5px;
   grid-template-areas:
-    "q w e r t y u i o p bs bs"
-    ". a s d f g h j k l enter ."
-    ". . z x c v b n m . enter .";
+    "q w e r t y u i o p Backspace Backspace"
+    ". a s d f g h j k l Enter ."
+    ". . z x c v b n m . Enter .";
   min-height: 0; /* NEW */
   min-width: 0; /* NEW; needed for Firefox */
 
@@ -208,12 +208,12 @@ export const Keyboard = ({ clickHandler, letterMapping }: KeyboardProps) => {
         clickHandler={clickHandler}
       />
       <Key
-        letter="bs"
+        letter="Backspace"
         letterMapping={letterMapping}
         clickHandler={clickHandler}
       />
       <Key
-        letter="enter"
+        letter="Enter"
         letterMapping={letterMapping}
         clickHandler={clickHandler}
       />

@@ -129,36 +129,41 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
     setWordToGuess(wordToGuess);
   }, []);
 
-  useEffect(() => {
-    const handleKeyup = (e: KeyboardEvent) => {
-      setIsError(false);
-
-      if (Number(e.keyCode) === 13 && word.length === wordLength) {
-        // check word exists in dictionary
-        //compare to word to guess
-        if (!words.includes(word)) {
-          setIsError(true);
-          return;
-        }
-
-        const result = compare(word, wordToGuess, wordLength);
-        guesses.push(word);
-        guessResults.push(result);
-        setWord("");
-        currentGuessNumber++;
-      }
-
-      if (Number(e.keyCode) === 8) {
-        setWord(word.slice(0, -1));
-      }
-
-      if (word.length === wordLength) {
+  const handleLetter = (letter: string) => {
+    if (letter === "Enter" && word.length === wordLength) {
+      // check word exists in dictionary
+      //compare to word to guess
+      if (!words.includes(word)) {
+        setIsError(true);
+        setTimeout(() => {
+          setIsError(false);
+        }, 1000);
         return;
       }
 
-      if (Number(e.keyCode) >= 65 && Number(e.keyCode) < 91) {
-        setWord(word + e.key);
-      }
+      const result = compare(word, wordToGuess, wordLength);
+      guesses.push(word);
+      guessResults.push(result);
+      setWord("");
+      currentGuessNumber++;
+    }
+
+    if (letter === "Backspace") {
+      setWord(word.slice(0, -1));
+    }
+
+    if (word.length === wordLength) {
+      return;
+    }
+
+    if (letter.length === 1) {
+      setWord(word + letter.toLowerCase());
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyup = (e: KeyboardEvent) => {
+      handleLetter(e.key);
     };
 
     window.addEventListener("keyup", handleKeyup);
@@ -196,32 +201,7 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
       </StyledMain>
       <Keyboard
         letterMapping={letterMapping}
-        clickHandler={(letter) => {
-          if (letter === "bs") {
-            return setWord(word.slice(0, -1));
-          }
-
-          if (letter === "enter" && word.length === wordLength) {
-            setIsError(false);
-            if (!words.includes(word)) {
-              setIsError(true);
-              return;
-            }
-            const result = compare(word, wordToGuess, wordLength);
-            guesses.push(word);
-            guessResults.push(result);
-
-            setWord("");
-            currentGuessNumber++;
-            return;
-          }
-
-          if (letter === "enter") {
-            return;
-          }
-
-          setWord(word + letter);
-        }}
+        clickHandler={(letter) => handleLetter(letter)}
       />
     </>
   );
