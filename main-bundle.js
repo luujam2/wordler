@@ -42186,17 +42186,15 @@ const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/re
 const react_intersection_observer_1 = __webpack_require__(/*! react-intersection-observer */ "./node_modules/react-intersection-observer/react-intersection-observer.m.js");
 const keyboard_1 = __webpack_require__(/*! ./keyboard */ "./src/keyboard.tsx");
 const row_1 = __webpack_require__(/*! ./row */ "./src/row.tsx");
-let currentGuessNumber = 0;
+const modal_1 = __importStar(__webpack_require__(/*! ./modal */ "./src/modal.tsx"));
+const results_1 = __webpack_require__(/*! ./results */ "./src/results.tsx");
 var BoardResult;
 (function (BoardResult) {
     BoardResult[BoardResult["MATCH"] = 0] = "MATCH";
     BoardResult[BoardResult["PARTIAL_MATCH"] = 1] = "PARTIAL_MATCH";
     BoardResult[BoardResult["NO_MATCH"] = 2] = "NO_MATCH";
 })(BoardResult = exports.BoardResult || (exports.BoardResult = {}));
-const guesses = [];
-const guessResults = [];
-const letterMapping = {};
-const compare = (word, wordToGuess, wordLength) => {
+const compare = (word, wordToGuess, letterMapping, setLetterMapping) => {
     const result = [];
     const matchingIndices = [];
     const partialMatchingIndices = [];
@@ -42242,6 +42240,7 @@ const compare = (word, wordToGuess, wordLength) => {
             result.push(BoardResult.NO_MATCH);
         }
     }
+    setLetterMapping(letterMapping);
     return result;
 };
 const StyledBoard = styled_1.default.div `
@@ -42266,6 +42265,7 @@ const StyledMain = styled_1.default.div `
 `;
 const BoardInit = ({ noOfGuesses, wordLength }) => {
     const [words, setWords] = (0, react_1.useState)(undefined);
+    const [game, setGame] = (0, react_1.useState)(0);
     const [guessableWords, setGuessableWords] = (0, react_1.useState)(undefined);
     (0, react_1.useEffect)(() => {
         const loadWords = async () => {
@@ -42284,13 +42284,19 @@ const BoardInit = ({ noOfGuesses, wordLength }) => {
     if (!words || !guessableWords) {
         return react_1.default.createElement("div", null, "loading");
     }
-    return (react_1.default.createElement(exports.Board, { noOfGuesses: noOfGuesses, words: words, guessableWords: guessableWords }));
+    return (react_1.default.createElement(exports.Board, { key: game, noOfGuesses: noOfGuesses, words: words, guessableWords: guessableWords, reset: () => setGame(game + 1) }));
 };
 exports.BoardInit = BoardInit;
-const Board = ({ noOfGuesses, words, guessableWords }) => {
+const Board = ({ noOfGuesses, words, guessableWords, reset, }) => {
     const [word, setWord] = (0, react_1.useState)("");
     const [wordToGuess, setWordToGuess] = (0, react_1.useState)("");
     const [isError, setIsError] = (0, react_1.useState)(false);
+    const [showModal, setShowModal] = (0, react_1.useState)(false);
+    const [hasUserWon, setHasUserWon] = (0, react_1.useState)(false);
+    const [guesses, setGuesses] = (0, react_1.useState)([]);
+    const [guessResults, setGuessResults] = (0, react_1.useState)([]);
+    const [letterMapping, setLetterMapping] = (0, react_1.useState)({});
+    const [currentGuessNumber, setCurrentGuessNumber] = (0, react_1.useState)(0);
     const wordLength = wordToGuess.length;
     const { ref, inView } = (0, react_intersection_observer_1.useInView)({
         /* Optional options */
@@ -42327,11 +42333,21 @@ const Board = ({ noOfGuesses, words, guessableWords }) => {
                 }, 1000);
                 return;
             }
-            const result = compare(word, wordToGuess, wordLength);
-            guesses.push(word);
-            guessResults.push(result);
+            const result = compare(word, wordToGuess, letterMapping, setLetterMapping);
+            setGuesses([...guesses, word]);
+            setGuessResults([...guessResults, result]);
             setWord("");
-            currentGuessNumber++;
+            // check if no. of guesses have been exceeded
+            // check if user has guessed word
+            if (result.filter((boardResult) => boardResult !== BoardResult.MATCH)
+                .length === 0) {
+                setHasUserWon(true);
+                return setShowModal(true);
+            }
+            if (currentGuessNumber === noOfGuesses - 1) {
+                return setShowModal(true);
+            }
+            setCurrentGuessNumber(currentGuessNumber + 1);
         }
         if (letter === "Backspace") {
             setWord(word.slice(0, -1));
@@ -42349,6 +42365,9 @@ const Board = ({ noOfGuesses, words, guessableWords }) => {
     };
     (0, react_1.useEffect)(() => {
         const handleKeyup = (e) => {
+            if (showModal) {
+                return;
+            }
             handleLetter(e.key);
         };
         window.addEventListener("keyup", handleKeyup);
@@ -42372,7 +42391,12 @@ const Board = ({ noOfGuesses, words, guessableWords }) => {
         react_1.default.createElement(StyledMain, null,
             react_1.default.createElement("h1", null, "Wordler"),
             react_1.default.createElement(StyledBoard, null, boardStructure)),
-        react_1.default.createElement(keyboard_1.Keyboard, { letterMapping: letterMapping, clickHandler: (letter) => handleLetter(letter) })));
+        react_1.default.createElement(keyboard_1.Keyboard, { letterMapping: letterMapping, clickHandler: (letter) => handleLetter(letter) }),
+        showModal && (react_1.default.createElement(modal_1.default, null,
+            react_1.default.createElement(modal_1.Contents, null,
+                react_1.default.createElement(results_1.Results, { hasUserWon: hasUserWon, noOfGuesses: noOfGuesses, wordToGuess: wordToGuess, playAgain: () => {
+                        reset();
+                    } }))))));
 };
 exports.Board = Board;
 
@@ -42513,6 +42537,93 @@ const Main = () => {
     return react_1.default.createElement(settings_1.Settings, null);
 };
 react_dom_1.default.render(react_1.default.createElement(Main, null), document.getElementById("output"));
+
+
+/***/ }),
+
+/***/ "./src/modal.tsx":
+/*!***********************!*\
+  !*** ./src/modal.tsx ***!
+  \***********************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Contents = void 0;
+const styled_1 = __importDefault(__webpack_require__(/*! @emotion/styled */ "./node_modules/@emotion/styled/dist/emotion-styled.browser.esm.js"));
+const react_dom_1 = __importDefault(__webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js"));
+exports.Contents = styled_1.default.div `
+  position: fixed;
+  display: grid;
+  place-items: center;
+  height: 80%;
+  margin: 10% 20%;
+  top: 0;
+  right: 0;
+  left: 0;
+  background: rgba(137, 169, 179, 0.95);
+  z-index: 99;
+  border: 2px solid grey;
+
+  @media (max-width: 500px) {
+    height: 94%;
+    margin: 5% 5%;
+  }
+`;
+exports["default"] = ({ children }) => {
+    return react_dom_1.default.createPortal(children, document.getElementById("modal-root"));
+};
+
+
+/***/ }),
+
+/***/ "./src/results.tsx":
+/*!*************************!*\
+  !*** ./src/results.tsx ***!
+  \*************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Results = void 0;
+const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const Results = ({ hasUserWon, noOfGuesses, wordToGuess, playAgain, }) => {
+    var _a, _b, _c, _d;
+    const stats = JSON.parse((_a = localStorage.getItem("statistics")) !== null && _a !== void 0 ? _a : "{}");
+    stats.wins = ((_b = stats.wins) !== null && _b !== void 0 ? _b : (stats.wins = 0)) + (hasUserWon ? 1 : 0);
+    stats.gamesPlayed = ((_c = stats.gamesPlayed) !== null && _c !== void 0 ? _c : (stats.gamesPlayed = 0)) + 1;
+    stats.currentStreak = hasUserWon ? ((_d = stats.currentStreak) !== null && _d !== void 0 ? _d : (stats.currentStreak = 0)) + 1 : 0;
+    localStorage.setItem("statistics", JSON.stringify(stats));
+    const winPercentage = (stats.wins / stats.gamesPlayed) * 100;
+    return (react_1.default.createElement("div", null,
+        react_1.default.createElement("p", null, hasUserWon
+            ? `Congratulations! you guessed the word in ${noOfGuesses} tries.`
+            : `word was ${wordToGuess}`),
+        react_1.default.createElement("p", null,
+            react_1.default.createElement("div", null,
+                "Games played: ",
+                stats.gamesPlayed),
+            react_1.default.createElement("div", null,
+                "Wins: ",
+                stats.wins),
+            react_1.default.createElement("div", null,
+                "Current win streak: ",
+                stats.currentStreak),
+            react_1.default.createElement("div", null,
+                "Win %: ",
+                winPercentage)),
+        react_1.default.createElement("button", { onClick: playAgain }, "Play again"),
+        react_1.default.createElement("button", { onClick: () => (window.location.href = window.location.href.split("?")[0]) }, "Change settings")));
+};
+exports.Results = Results;
 
 
 /***/ }),
