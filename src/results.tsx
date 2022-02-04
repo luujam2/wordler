@@ -33,7 +33,7 @@ export const Results = ({
     setStats(stats);
   }, []);
 
-  const winPercentage = (stats?.wins ?? 1 / (stats?.gamesPlayed ?? 1)) * 100;
+  const winPercentage = ((stats?.wins ?? 1) / (stats?.gamesPlayed ?? 1)) * 100;
 
   return (
     <div>
