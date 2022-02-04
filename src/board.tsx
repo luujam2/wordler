@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { Keyboard } from "./keyboard";
 import { Row } from "./row";
+import Modal, { Contents } from "./modal";
+import { Results } from "./results";
 
 let currentGuessNumber = 0;
 
@@ -148,6 +150,8 @@ export const Board = ({ noOfGuesses, words, guessableWords }: BoardProps) => {
   const [word, setWord] = useState("");
   const [wordToGuess, setWordToGuess] = useState("");
   const [isError, setIsError] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [hasUserWon, setHasUserWon] = useState(false);
   const wordLength = wordToGuess.length;
   const { ref, inView } = useInView({
     /* Optional options */
@@ -196,6 +200,20 @@ export const Board = ({ noOfGuesses, words, guessableWords }: BoardProps) => {
       guesses.push(word);
       guessResults.push(result);
       setWord("");
+
+      // check if no. of guesses have been exceeded
+      // check if user has guessed word
+      if (
+        result.filter((boardResult) => boardResult !== BoardResult.MATCH)
+          .length === 0
+      ) {
+        setHasUserWon(true);
+        return setShowModal(true);
+      }
+
+      if (currentGuessNumber === noOfGuesses - 1) {
+        return setShowModal(true);
+      }
       currentGuessNumber++;
     }
 
@@ -218,6 +236,9 @@ export const Board = ({ noOfGuesses, words, guessableWords }: BoardProps) => {
 
   useEffect(() => {
     const handleKeyup = (e: KeyboardEvent) => {
+      if (showModal) {
+        return;
+      }
       handleLetter(e.key);
     };
 
@@ -263,6 +284,18 @@ export const Board = ({ noOfGuesses, words, guessableWords }: BoardProps) => {
         letterMapping={letterMapping}
         clickHandler={(letter) => handleLetter(letter)}
       />
+      {showModal && (
+        <Modal>
+          <Contents>
+            <Results
+              hasUserWon={hasUserWon}
+              noOfGuesses={noOfGuesses}
+              wordToGuess={wordToGuess}
+              playAgain={() => {}}
+            />
+          </Contents>
+        </Modal>
+      )}
     </>
   );
 };
