@@ -49,20 +49,25 @@ const compare = (word: string, wordToGuess: string, wordLength: number) => {
     let currentMapping = letterMapping[word[i]];
 
     if (matchingIndices.includes(i)) {
-      result.push(BoardResult.MATCH);
       letterMapping[word[i]] = BoardResult.MATCH;
     } else if (
       partialMatchingIndices.includes(i) &&
       currentMapping !== BoardResult.MATCH
     ) {
-      result.push(BoardResult.PARTIAL_MATCH);
       letterMapping[word[i]] = BoardResult.PARTIAL_MATCH;
     } else if (
       currentMapping !== BoardResult.MATCH &&
       currentMapping !== BoardResult.PARTIAL_MATCH
     ) {
-      result.push(BoardResult.NO_MATCH);
       letterMapping[word[i]] = BoardResult.NO_MATCH;
+    }
+
+    if (matchingIndices.includes(i)) {
+      result.push(BoardResult.MATCH);
+    } else if (partialMatchingIndices.includes(i)) {
+      result.push(BoardResult.PARTIAL_MATCH);
+    } else {
+      result.push(BoardResult.NO_MATCH);
     }
   }
 
@@ -99,33 +104,47 @@ type BoardInitProps = {
 type BoardProps = {
   noOfGuesses: number;
   words: string[];
+  guessableWords: string[];
 };
 
 export const BoardInit = ({ noOfGuesses, wordLength }: BoardInitProps) => {
   const [words, setWords] = useState<string[] | null | undefined>(undefined);
+  const [guessableWords, setGuessableWords] = useState<
+    string[] | null | undefined
+  >(undefined);
 
   useEffect(() => {
     const loadWords = async () => {
       try {
-        const loadedWords = await import(`../words/${wordLength}-letter-words`);
+        const { words, guessableWords } = await import(
+          `../words/${wordLength}-letter-words`
+        );
 
-        setWords(loadedWords.default);
+        setWords(words);
+        setGuessableWords(guessableWords);
       } catch (e) {
         setWords(null);
+        setGuessableWords(null);
       }
     };
 
     loadWords();
   });
 
-  if (!words) {
+  if (!words || !guessableWords) {
     return <div>loading</div>;
   }
 
-  return <Board noOfGuesses={noOfGuesses} words={words} />;
+  return (
+    <Board
+      noOfGuesses={noOfGuesses}
+      words={words}
+      guessableWords={guessableWords}
+    />
+  );
 };
 
-export const Board = ({ noOfGuesses, words }: BoardProps) => {
+export const Board = ({ noOfGuesses, words, guessableWords }: BoardProps) => {
   const [word, setWord] = useState("");
   const [wordToGuess, setWordToGuess] = useState("");
   const [isError, setIsError] = useState(false);
@@ -165,7 +184,7 @@ export const Board = ({ noOfGuesses, words }: BoardProps) => {
       scrollToView();
       // check word exists in dictionary
       //compare to word to guess
-      if (!words.includes(word)) {
+      if (!guessableWords.includes(word)) {
         setIsError(true);
         setTimeout(() => {
           setIsError(false);

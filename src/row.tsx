@@ -97,14 +97,16 @@ const Cell = ({ letter, result }: CellProps) => {
       variantToUse = "partial";
       break;
     case BoardResult.NO_MATCH:
-    default:
       variantToUse = "no";
+      break;
+    default:
+      variantToUse = "unmatch";
   }
 
   return (
     <StyledCell
       variants={variants}
-      initial="no"
+      initial="unmatch"
       animate={variantToUse}
       match={result}
     >
