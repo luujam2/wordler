@@ -42327,7 +42327,7 @@ const Board = ({ noOfGuesses, words, guessableWords, reset, }) => {
                 setIsError(true);
                 setTimeout(() => {
                     setIsError(false);
-                }, 1000);
+                }, 2000);
                 return;
             }
             const result = compare(word, wordToGuess, letterMapping, setLetterMapping);
@@ -42339,8 +42339,12 @@ const Board = ({ noOfGuesses, words, guessableWords, reset, }) => {
             if (result.filter((boardResult) => boardResult !== BoardResult.MATCH)
                 .length === 0) {
                 setHasUserWon(true);
-                return setShowModal(true);
+                setTimeout(() => {
+                    return setShowModal(true);
+                }, 1000);
+                return;
             }
+            //loss
             if (currentGuessNumber === noOfGuesses - 1) {
                 return setShowModal(true);
             }
@@ -42375,13 +42379,13 @@ const Board = ({ noOfGuesses, words, guessableWords, reset, }) => {
     const boardStructure = [];
     for (let i = 0; i < noOfGuesses; i++) {
         if (guesses[i]) {
-            boardStructure.push(react_1.default.createElement(row_1.Row, { word: guesses[i], result: guessResults[i], wordLength: wordLength }));
+            boardStructure.push(react_1.default.createElement(row_1.Row, { key: `row-${i}`, word: guesses[i], result: guessResults[i], wordLength: wordLength, isWin: hasUserWon && i === currentGuessNumber }));
         }
         else if (i === currentGuessNumber) {
-            boardStructure.push(react_1.default.createElement(row_1.Row, { ref: setRefs, word: word, isError: isError, wordLength: wordLength }));
+            boardStructure.push(react_1.default.createElement(row_1.Row, { key: `row-${i}`, word: word, isError: isError, wordLength: wordLength }));
         }
         else {
-            boardStructure.push(react_1.default.createElement(row_1.Row, { wordLength: wordLength }));
+            boardStructure.push(react_1.default.createElement(row_1.Row, { key: `row-${i}`, wordLength: wordLength }));
         }
     }
     return (react_1.default.createElement(react_1.default.Fragment, null,
@@ -42667,6 +42671,10 @@ const variants = {
     no: { backgroundColor: "grey", rotate: 0 },
     partial: { backgroundColor: "orange", rotate: 360 },
     exact: { backgroundColor: "green", rotate: 360 },
+    unmatch: { backgroundColor: "white", scale: 1 },
+    win: {
+        scale: [1, 2, 1],
+    },
 };
 const StyledRow = (0, styled_1.default)(framer_motion_1.motion.div) `
   display: grid;
@@ -42680,20 +42688,31 @@ const StyledRow = (0, styled_1.default)(framer_motion_1.motion.div) `
     grid-template-rows: 50px;
   }
 `;
-exports.Row = react_1.default.forwardRef(({ word, result, isError, wordLength }, ref) => {
+const Row = ({ word, result, isError, wordLength, isWin }) => {
+    const variantsa = {
+        win: {
+            transition: {
+                staggerChildren: 0.07,
+                delayChildren: 0,
+            },
+        },
+        error: { x: [-10, 10, -10, 10, -10, 10, 0] },
+        initial: { x: 0, scale: 1 },
+    };
     const cells = [];
     if (!word) {
         for (let i = 0; i < wordLength; i++) {
-            cells.push(react_1.default.createElement(Cell, null));
+            cells.push(react_1.default.createElement(Cell, { key: `cell-${i}` }));
         }
     }
     else {
         for (let i = 0; i < wordLength; i++) {
-            cells.push(react_1.default.createElement(Cell, { letter: word[i], result: result === null || result === void 0 ? void 0 : result[i] }));
+            cells.push(react_1.default.createElement(Cell, { key: `cell-${i}`, letter: word[i], result: result === null || result === void 0 ? void 0 : result[i] }));
         }
     }
-    return (react_1.default.createElement(StyledRow, { wordLength: wordLength, animate: isError ? { x: [-10, 10, -10, 10, -10, 10, 0] } : { x: 0 }, transition: { duration: 0.5 }, ref: ref }, cells));
-});
+    return (react_1.default.createElement(StyledRow, { wordLength: wordLength, variants: variantsa, animate: isError ? "error" : isWin ? "win" : "initial" }, cells));
+};
+exports.Row = Row;
 const StyledCell = (0, styled_1.default)(framer_motion_1.motion.div) `
   height: 100%;
   width: 100%;
@@ -42717,7 +42736,7 @@ const StyledCell = (0, styled_1.default)(framer_motion_1.motion.div) `
 `;
 const Cell = ({ letter, result }) => {
     if (!letter) {
-        return react_1.default.createElement(StyledCell, { match: undefined });
+        return react_1.default.createElement(StyledCell, { match: undefined, variants: variants });
     }
     let variantToUse;
     switch (result) {
@@ -42733,7 +42752,7 @@ const Cell = ({ letter, result }) => {
         default:
             variantToUse = "unmatch";
     }
-    return (react_1.default.createElement(StyledCell, { variants: variants, initial: "unmatch", animate: variantToUse, match: result }, letter.toUpperCase()));
+    return (react_1.default.createElement(StyledCell, { variants: variants, animate: variantToUse, match: result }, letter.toUpperCase()));
 };
 
 
