@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type ResultsProps = {
   hasUserWon: boolean;
@@ -7,21 +7,33 @@ type ResultsProps = {
   playAgain: () => void;
 };
 
+type Stats = {
+  wins: number;
+  gamesPlayed: number;
+  currentStreak: number;
+};
+
 export const Results = ({
   hasUserWon,
   noOfGuesses,
   wordToGuess,
   playAgain,
 }: ResultsProps) => {
-  const stats = JSON.parse(localStorage.getItem("statistics") ?? "{}");
+  const [stats, setStats] = useState<Stats>();
 
-  stats.wins = (stats.wins ??= 0) + (hasUserWon ? 1 : 0);
-  stats.gamesPlayed = (stats.gamesPlayed ??= 0) + 1;
-  stats.currentStreak = hasUserWon ? (stats.currentStreak ??= 0) + 1 : 0;
+  useEffect(() => {
+    const stats = JSON.parse(localStorage.getItem("statistics") ?? "{}");
 
-  localStorage.setItem("statistics", JSON.stringify(stats));
+    stats.wins = (stats.wins ??= 0) + (hasUserWon ? 1 : 0);
+    stats.gamesPlayed = (stats.gamesPlayed ??= 0) + 1;
+    stats.currentStreak = hasUserWon ? (stats.currentStreak ??= 0) + 1 : 0;
 
-  const winPercentage = (stats.wins / stats.gamesPlayed) * 100;
+    localStorage.setItem("statistics", JSON.stringify(stats));
+
+    setStats(stats);
+  }, []);
+
+  const winPercentage = (stats?.wins ?? 1 / (stats?.gamesPlayed ?? 1)) * 100;
 
   return (
     <div>
@@ -31,9 +43,9 @@ export const Results = ({
           : `word was ${wordToGuess}`}
       </p>
       <p>
-        <div>Games played: {stats.gamesPlayed}</div>
-        <div>Wins: {stats.wins}</div>
-        <div>Current win streak: {stats.currentStreak}</div>
+        <div>Games played: {stats?.gamesPlayed}</div>
+        <div>Wins: {stats?.wins}</div>
+        <div>Current win streak: {stats?.currentStreak}</div>
         <div>Win %: {winPercentage}</div>
       </p>
       <button onClick={playAgain}>Play again</button>
