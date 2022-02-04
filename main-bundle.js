@@ -42586,33 +42586,54 @@ exports["default"] = ({ children }) => {
 
 "use strict";
 
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Results = void 0;
-const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const Results = ({ hasUserWon, noOfGuesses, wordToGuess, playAgain, }) => {
-    var _a, _b, _c, _d;
-    const stats = JSON.parse((_a = localStorage.getItem("statistics")) !== null && _a !== void 0 ? _a : "{}");
-    stats.wins = ((_b = stats.wins) !== null && _b !== void 0 ? _b : (stats.wins = 0)) + (hasUserWon ? 1 : 0);
-    stats.gamesPlayed = ((_c = stats.gamesPlayed) !== null && _c !== void 0 ? _c : (stats.gamesPlayed = 0)) + 1;
-    stats.currentStreak = hasUserWon ? ((_d = stats.currentStreak) !== null && _d !== void 0 ? _d : (stats.currentStreak = 0)) + 1 : 0;
-    localStorage.setItem("statistics", JSON.stringify(stats));
-    const winPercentage = (stats.wins / stats.gamesPlayed) * 100;
+    var _a, _b;
+    const [stats, setStats] = (0, react_1.useState)();
+    (0, react_1.useEffect)(() => {
+        var _a, _b, _c, _d;
+        const stats = JSON.parse((_a = localStorage.getItem("statistics")) !== null && _a !== void 0 ? _a : "{}");
+        stats.wins = ((_b = stats.wins) !== null && _b !== void 0 ? _b : (stats.wins = 0)) + (hasUserWon ? 1 : 0);
+        stats.gamesPlayed = ((_c = stats.gamesPlayed) !== null && _c !== void 0 ? _c : (stats.gamesPlayed = 0)) + 1;
+        stats.currentStreak = hasUserWon ? ((_d = stats.currentStreak) !== null && _d !== void 0 ? _d : (stats.currentStreak = 0)) + 1 : 0;
+        localStorage.setItem("statistics", JSON.stringify(stats));
+        setStats(stats);
+    }, []);
+    const winPercentage = ((_a = stats === null || stats === void 0 ? void 0 : stats.wins) !== null && _a !== void 0 ? _a : 1 / ((_b = stats === null || stats === void 0 ? void 0 : stats.gamesPlayed) !== null && _b !== void 0 ? _b : 1)) * 100;
     return (react_1.default.createElement("div", null,
         react_1.default.createElement("p", null, hasUserWon
             ? `Congratulations! you guessed the word in ${noOfGuesses} tries.`
             : `word was ${wordToGuess}`),
         react_1.default.createElement("p", null,
             react_1.default.createElement("div", null,
-                "Games played: ",
+                "Games played: ", stats === null || stats === void 0 ? void 0 :
                 stats.gamesPlayed),
             react_1.default.createElement("div", null,
-                "Wins: ",
+                "Wins: ", stats === null || stats === void 0 ? void 0 :
                 stats.wins),
             react_1.default.createElement("div", null,
-                "Current win streak: ",
+                "Current win streak: ", stats === null || stats === void 0 ? void 0 :
                 stats.currentStreak),
             react_1.default.createElement("div", null,
                 "Win %: ",
