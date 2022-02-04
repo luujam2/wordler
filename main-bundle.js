@@ -42620,7 +42620,7 @@ const Results = ({ hasUserWon, noOfGuesses, wordToGuess, playAgain, }) => {
         localStorage.setItem("statistics", JSON.stringify(stats));
         setStats(stats);
     }, []);
-    const winPercentage = ((_a = stats === null || stats === void 0 ? void 0 : stats.wins) !== null && _a !== void 0 ? _a : 1 / ((_b = stats === null || stats === void 0 ? void 0 : stats.gamesPlayed) !== null && _b !== void 0 ? _b : 1)) * 100;
+    const winPercentage = (((_a = stats === null || stats === void 0 ? void 0 : stats.wins) !== null && _a !== void 0 ? _a : 1) / ((_b = stats === null || stats === void 0 ? void 0 : stats.gamesPlayed) !== null && _b !== void 0 ? _b : 1)) * 100;
     return (react_1.default.createElement("div", null,
         react_1.default.createElement("p", null, hasUserWon
             ? `Congratulations! you guessed the word in ${noOfGuesses} tries.`
