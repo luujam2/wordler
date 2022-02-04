@@ -37,7 +37,13 @@ export const Results = ({
         <div>Win %: {winPercentage}</div>
       </p>
       <button onClick={playAgain}>Play again</button>
-      <button>Change settings</button>
+      <button
+        onClick={() =>
+          (window.location.href = window.location.href.split("?")[0])
+        }
+      >
+        Change settings
+      </button>
     </div>
   );
 };

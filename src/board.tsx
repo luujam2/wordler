@@ -1,12 +1,17 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useInView } from "react-intersection-observer";
 import { Keyboard } from "./keyboard";
 import { Row } from "./row";
 import Modal, { Contents } from "./modal";
 import { Results } from "./results";
-
-let currentGuessNumber = 0;
 
 export enum BoardResult {
   MATCH,
@@ -18,11 +23,12 @@ export type LetterMapping = {
   [key: string]: BoardResult;
 };
 
-const guesses: string[] = [];
-const guessResults: BoardResult[][] = [];
-const letterMapping: LetterMapping = {};
-
-const compare = (word: string, wordToGuess: string, wordLength: number) => {
+const compare = (
+  word: string,
+  wordToGuess: string,
+  letterMapping: LetterMapping,
+  setLetterMapping: React.Dispatch<React.SetStateAction<LetterMapping>>
+) => {
   const result = [];
   const matchingIndices = [];
   const partialMatchingIndices = [];
@@ -73,6 +79,8 @@ const compare = (word: string, wordToGuess: string, wordLength: number) => {
     }
   }
 
+  setLetterMapping(letterMapping);
+
   return result;
 };
 
@@ -107,10 +115,12 @@ type BoardProps = {
   noOfGuesses: number;
   words: string[];
   guessableWords: string[];
+  reset: () => void;
 };
 
 export const BoardInit = ({ noOfGuesses, wordLength }: BoardInitProps) => {
   const [words, setWords] = useState<string[] | null | undefined>(undefined);
+  const [game, setGame] = useState(0);
   const [guessableWords, setGuessableWords] = useState<
     string[] | null | undefined
   >(undefined);
@@ -139,19 +149,32 @@ export const BoardInit = ({ noOfGuesses, wordLength }: BoardInitProps) => {
 
   return (
     <Board
+      key={game}
       noOfGuesses={noOfGuesses}
       words={words}
       guessableWords={guessableWords}
+      reset={() => setGame(game + 1)}
     />
   );
 };
 
-export const Board = ({ noOfGuesses, words, guessableWords }: BoardProps) => {
+export const Board = ({
+  noOfGuesses,
+  words,
+  guessableWords,
+  reset,
+}: BoardProps) => {
   const [word, setWord] = useState("");
   const [wordToGuess, setWordToGuess] = useState("");
   const [isError, setIsError] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [hasUserWon, setHasUserWon] = useState(false);
+
+  const [guesses, setGuesses] = useState<string[]>([]);
+  const [guessResults, setGuessResults] = useState<BoardResult[][]>([]);
+  const [letterMapping, setLetterMapping] = useState<LetterMapping>({});
+  const [currentGuessNumber, setCurrentGuessNumber] = useState(0);
+
   const wordLength = wordToGuess.length;
   const { ref, inView } = useInView({
     /* Optional options */
@@ -196,9 +219,14 @@ export const Board = ({ noOfGuesses, words, guessableWords }: BoardProps) => {
         return;
       }
 
-      const result = compare(word, wordToGuess, wordLength);
-      guesses.push(word);
-      guessResults.push(result);
+      const result = compare(
+        word,
+        wordToGuess,
+        letterMapping,
+        setLetterMapping
+      );
+      setGuesses([...guesses, word]);
+      setGuessResults([...guessResults, result]);
       setWord("");
 
       // check if no. of guesses have been exceeded
@@ -214,7 +242,7 @@ export const Board = ({ noOfGuesses, words, guessableWords }: BoardProps) => {
       if (currentGuessNumber === noOfGuesses - 1) {
         return setShowModal(true);
       }
-      currentGuessNumber++;
+      setCurrentGuessNumber(currentGuessNumber + 1);
     }
 
     if (letter === "Backspace") {
@@ -291,7 +319,9 @@ export const Board = ({ noOfGuesses, words, guessableWords }: BoardProps) => {
               hasUserWon={hasUserWon}
               noOfGuesses={noOfGuesses}
               wordToGuess={wordToGuess}
-              playAgain={() => {}}
+              playAgain={() => {
+                reset();
+              }}
             />
           </Contents>
         </Modal>
