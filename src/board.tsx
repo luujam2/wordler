@@ -46,13 +46,21 @@ const compare = (word: string, wordToGuess: string, wordLength: number) => {
   }
 
   for (let i = 0; i < word.length; i++) {
+    let currentMapping = letterMapping[word[i]];
+
     if (matchingIndices.includes(i)) {
       result.push(BoardResult.MATCH);
       letterMapping[word[i]] = BoardResult.MATCH;
-    } else if (partialMatchingIndices.includes(i)) {
+    } else if (
+      partialMatchingIndices.includes(i) &&
+      currentMapping !== BoardResult.MATCH
+    ) {
       result.push(BoardResult.PARTIAL_MATCH);
       letterMapping[word[i]] = BoardResult.PARTIAL_MATCH;
-    } else {
+    } else if (
+      currentMapping !== BoardResult.MATCH &&
+      currentMapping !== BoardResult.PARTIAL_MATCH
+    ) {
       result.push(BoardResult.NO_MATCH);
       letterMapping[word[i]] = BoardResult.NO_MATCH;
     }
