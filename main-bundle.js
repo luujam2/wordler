@@ -42247,20 +42247,17 @@ const StyledBoard = styled_1.default.div `
   display: grid;
   grid-template-rows: repeat(6, 1fr);
   row-gap: 10px;
-  height: 320px;
-
-  @media (min-width: 700px) {
-    height: 500px;
-  }
 `;
 const StyledMain = styled_1.default.div `
   width: 320px;
   margin: 0 auto;
   text-align: center;
+  margin-bottom: 150px;
 
   @media (min-width: 700px) {
     font-size: 50px;
     width: 500px;
+    margin-bottom: 400px;
   }
 `;
 const BoardInit = ({ noOfGuesses, wordLength }) => {
@@ -42394,7 +42391,7 @@ const Board = ({ noOfGuesses, words, guessableWords, reset, }) => {
         react_1.default.createElement(keyboard_1.Keyboard, { letterMapping: letterMapping, clickHandler: (letter) => handleLetter(letter) }),
         showModal && (react_1.default.createElement(modal_1.default, null,
             react_1.default.createElement(modal_1.Contents, null,
-                react_1.default.createElement(results_1.Results, { hasUserWon: hasUserWon, noOfGuesses: noOfGuesses, wordToGuess: wordToGuess, playAgain: () => {
+                react_1.default.createElement(results_1.Results, { hasUserWon: hasUserWon, noOfGuesses: currentGuessNumber + 1, wordToGuess: wordToGuess, playAgain: () => {
                         reset();
                     } }))))));
 };
