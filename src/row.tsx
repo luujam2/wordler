@@ -9,6 +9,7 @@ type RowProps = {
   isError?: boolean;
   wordLength: number;
   ref?: React.RefObject<HTMLDivElement> | undefined;
+  isWin?: boolean;
 };
 
 type CellProps = {
@@ -20,6 +21,10 @@ const variants: Variants = {
   no: { backgroundColor: "grey", rotate: 0 },
   partial: { backgroundColor: "orange", rotate: 360 },
   exact: { backgroundColor: "green", rotate: 360 },
+  unmatch: { backgroundColor: "white", scale: 1 },
+  win: {
+    scale: [1, 2, 1],
+  },
 };
 
 const StyledRow = styled(motion.div)<{ wordLength: number }>`
@@ -35,31 +40,41 @@ const StyledRow = styled(motion.div)<{ wordLength: number }>`
   }
 `;
 
-export const Row = React.forwardRef(
-  ({ word, result, isError, wordLength }: RowProps, ref) => {
-    const cells = [];
-    if (!word) {
-      for (let i = 0; i < wordLength; i++) {
-        cells.push(<Cell />);
-      }
-    } else {
-      for (let i = 0; i < wordLength; i++) {
-        cells.push(<Cell letter={word[i]} result={result?.[i]} />);
-      }
-    }
+export const Row = ({ word, result, isError, wordLength, isWin }: RowProps) => {
+  const variantsa = {
+    win: {
+      transition: {
+        staggerChildren: 0.07,
+        delayChildren: 0,
+      },
+    },
+    error: { x: [-10, 10, -10, 10, -10, 10, 0] },
+    initial: { x: 0, scale: 1 },
+  };
 
-    return (
-      <StyledRow
-        wordLength={wordLength}
-        animate={isError ? { x: [-10, 10, -10, 10, -10, 10, 0] } : { x: 0 }}
-        transition={{ duration: 0.5 }}
-        ref={ref as any}
-      >
-        {cells}
-      </StyledRow>
-    );
+  const cells = [];
+  if (!word) {
+    for (let i = 0; i < wordLength; i++) {
+      cells.push(<Cell key={`cell-${i}`} />);
+    }
+  } else {
+    for (let i = 0; i < wordLength; i++) {
+      cells.push(
+        <Cell key={`cell-${i}`} letter={word[i]} result={result?.[i]} />
+      );
+    }
   }
-);
+
+  return (
+    <StyledRow
+      wordLength={wordLength}
+      variants={variantsa}
+      animate={isError ? "error" : isWin ? "win" : "initial"}
+    >
+      {cells}
+    </StyledRow>
+  );
+};
 
 const StyledCell = styled(motion.div)<{ match: BoardResult | undefined }>`
   height: 100%;
@@ -85,7 +100,7 @@ const StyledCell = styled(motion.div)<{ match: BoardResult | undefined }>`
 
 const Cell = ({ letter, result }: CellProps) => {
   if (!letter) {
-    return <StyledCell match={undefined}></StyledCell>;
+    return <StyledCell match={undefined} variants={variants}></StyledCell>;
   }
 
   let variantToUse;
@@ -104,12 +119,7 @@ const Cell = ({ letter, result }: CellProps) => {
   }
 
   return (
-    <StyledCell
-      variants={variants}
-      initial="unmatch"
-      animate={variantToUse}
-      match={result}
-    >
+    <StyledCell variants={variants} animate={variantToUse} match={result}>
       {letter.toUpperCase()}
     </StyledCell>
   );

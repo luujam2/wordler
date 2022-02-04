@@ -212,7 +212,7 @@ export const Board = ({
         setIsError(true);
         setTimeout(() => {
           setIsError(false);
-        }, 1000);
+        }, 2000);
         return;
       }
 
@@ -233,9 +233,14 @@ export const Board = ({
           .length === 0
       ) {
         setHasUserWon(true);
-        return setShowModal(true);
+
+        setTimeout(() => {
+          return setShowModal(true);
+        }, 1000);
+        return;
       }
 
+      //loss
       if (currentGuessNumber === noOfGuesses - 1) {
         return setShowModal(true);
       }
@@ -280,22 +285,24 @@ export const Board = ({
     if (guesses[i]) {
       boardStructure.push(
         <Row
+          key={`row-${i}`}
           word={guesses[i]}
           result={guessResults[i]}
           wordLength={wordLength}
+          isWin={hasUserWon && i === currentGuessNumber}
         />
       );
     } else if (i === currentGuessNumber) {
       boardStructure.push(
         <Row
-          ref={setRefs}
+          key={`row-${i}`}
           word={word}
           isError={isError}
           wordLength={wordLength}
         />
       );
     } else {
-      boardStructure.push(<Row wordLength={wordLength} />);
+      boardStructure.push(<Row key={`row-${i}`} wordLength={wordLength} />);
     }
   }
 
